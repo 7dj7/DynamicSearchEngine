@@ -1,1 +1,21 @@
-
+<html>
+    <head>
+        {% if title %}
+        <title>{{ title }} - Custom Dynamic Search</title>
+        {% else %}
+        <title>Welcome to Custom Dynamic Search!</title>
+        {% endif %}
+    </head>
+    <body>
+        <form action="/search" method="post">
+            {% if user %}
+            <p>Welcome User : {{ user }}</p>
+            {% else %}
+            <p>Welcome New User</p>
+            {% endif %}
+            <br>
+            <label for="search">Enter Keywords: </label>            
+            <input name = "search" type = "text" width = "300" height = "50" value="Search"><br>
+        </form>               
+    </body>
+</html>

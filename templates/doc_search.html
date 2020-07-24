@@ -1,0 +1,24 @@
+<html>
+    <head>
+        {% if title %}
+        <title>{{ title }} - Custom Dynamic Search</title>
+        {% else %}
+        <title>Welcome to Custom Dynamic Search!</title>
+        {% endif %}
+    </head>
+    <body>
+        <label for="doclist">Showing Docs matching with {{key_words}}: </label>  
+            <br>
+            {% if docs != [] %}
+            <ul name="doclist">
+                {% for docItem in docs %}
+                <li>{{ docItem }}</li>
+                {% endfor %}
+            </ul> 
+            {% else %}
+            No match found!
+            {% endif %}
+
+             
+    </body>
+</html>
