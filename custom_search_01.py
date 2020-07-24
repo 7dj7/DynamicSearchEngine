@@ -1,12 +1,17 @@
 from nltk import word_tokenize, pos_tag, ne_chunk 
 from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 from nltk import RegexpParser
 from nltk import Tree
 import pandas as pd
 from math import *
 import copy
 import inflect
+#this inflect is to extract singular noun 
 p = inflect.engine()
+#lemmatizer is used to extract the base word from different uses of the word
+lemmatizer = WordNetLemmatizer() 
+#the stopwords essentually eliminates non signifiant words like I, he, she, am, is, can, should, must, may etc. 
 stop_words = set(stopwords.words('english'))
 # Load data
 def load_data(path):
@@ -23,13 +28,15 @@ def get_pos_val(text, chunk_func = ne_chunk):
     chunkedWords = chunk_func(pos_tag(word_tokenize(text)))
     pos_val = {}
     for chunk in chunkedWords:
-        print("Word:" + str(chunk[0]) + " POS:" + str(chunk[1]))
+        base = lemmatizer.lemmatize(chunk[0])
+        print('Base word: ' + base)
+        print("Used Word:" + str(chunk[0]) + " POS:" + str(chunk[1]))
         if str(chunk[1]) == 'NN' or str(chunk[1]) == 'NNP':
-            pos_val[chunk[0]] = 1
+            pos_val[base] = 1
         elif str(chunk[1]) == 'VB' or str(chunk[1]) == 'VBG' or str(chunk[1]) == 'VBD':
-            pos_val[chunk[0]] = 0.8
+            pos_val[base] = 0.8
         else:
-            pos_val[chunk[0]] = 0.6
+            pos_val[base] = 0.6
     return pos_val
 
 def normalized_term_frequency(word, document):
@@ -45,6 +52,7 @@ def normalized_term_frequency(word, document):
         if p.singular_noun(stword):
             stword = p.singular_noun(stword)
         stword = stword.lower()
+        stword = lemmatizer.lemmatize(stword)
         if stword == word:
             raw_frequency += 1
     #raw_frequency = document.count(word)
@@ -107,8 +115,12 @@ def search(path, textToSearch):
         docs.append(dc)
     #sort as per the term frequency
     docs = sorted(docs, key=lambda Doc:Doc.m_fntfreq , reverse=True)
+    #filter if the term freq grearer than 0
+    docs = list(filter(lambda Doc:Doc.m_fntfreq>0, docs))
+    textDocs = []
     for doc in docs:
         #initial list and order
         print(f'Doc ID:{doc.m_nDocID} Text: {doc.m_sDocText} Found Words: {doc.m_Dntfreq.items()}')
- 
-search('test_cases.csv', 'ship')
+        textDocs.append(doc.m_sDocText)
+    return textDocs
+# search('.//test_cases.csv', 'I was sitting on the desk of a fine ship')
